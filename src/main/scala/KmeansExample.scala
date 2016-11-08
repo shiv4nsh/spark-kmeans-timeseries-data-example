@@ -44,5 +44,7 @@ object KmeansExample {
     import spark.implicits._
     val foo = sameModel.predict(testRDD)
     foo.toDF.show
+
+    sc.stop()
   }
 }
