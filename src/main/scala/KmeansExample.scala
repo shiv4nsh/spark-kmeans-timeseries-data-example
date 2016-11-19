@@ -1,7 +1,5 @@
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
+import org.apache.spark.mllib.linalg.Vectors
 
 import scala.util.Try
 
