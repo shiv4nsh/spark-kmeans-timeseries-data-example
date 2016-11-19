@@ -32,11 +32,11 @@ object InfluxFactory {
   def processPressureData(pressureRead: RDD[String]) = {
     pressureRead.map(_.split(",")).map { row =>
       val date = getDate(row(0).replaceAll("TimeStamp:", ""))
-      val pressure: Int = row(1).split(":")(1).replaceAll("'", "").toInt
+      val pressure: Double = row(1).split(":")(1).replaceAll("[^0-9.]", "").toDouble
       val point = Try(Point(
         time = date, measurement = "Pamarco",
-        tags = Map("typeOfData" -> "Pressure"),
-        fields = Map("feature" -> pressure))).toOption
+        tags = Map("sensor" -> "pressure", "machine_id" -> "compressor_tank", "customer" -> "pamarco"),
+        fields = Map("pressure" -> pressure, "sample_time" -> date.getMillis.toDouble))).toOption
       point
     }.filter(_.isDefined).map(_.get)
   }
@@ -52,8 +52,11 @@ object InfluxFactory {
       val date = getDate(row(0) + " " + row(1))
       val point = Try(Point(
         time = date, measurement = "Pamarco",
-        tags = Map("typeOfData" -> "Vibration"),
-        fields = Map("featureOne" -> row(2).toDouble, "featureTwo" -> row(3).toDouble, "featureThree" -> row(4).toDouble))).toOption
+        tags = Map("sensor" -> "vibration", "machine_id" -> "compressor_pump", "customer" -> "pamarco"),
+        fields = Map("x" -> row(2).toDouble,
+          "y" -> row(3).toDouble,
+          "z" -> row(4).toDouble,
+          "sample_time" -> date.getMillis.toDouble))).toOption
       point
     }.filter(_.isDefined).map(_.get)
     vibrationVector.saveToInflux()
