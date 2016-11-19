@@ -10,17 +10,15 @@ import scala.util.Try
   * Created by shivansh on 6/11/16.
   */
 object KmeansExample {
-  val conf = new SparkConf().setAppName(s"LDAExample").setMaster("local[*]").set("spark.executor.memory", "2g")
-  val spark = SparkSession.builder().config(conf).getOrCreate()
-  val sc = spark.sparkContext
 
+  import ApplicationContext._
   def main(args: Array[String]) {
 
     val pressureRead = sc.textFile("src/main/resources/PamarcoPressure.txt")
     val vibrationText = sc.textFile("src/main/resources/PamarcoVibration.txt")
 
     val pressureRDD = pressureRead.map(_.split(","))
-    val vibrationRDD = vibrationText.map(_.split("\t"))
+    val vibrationRDD = vibrationText.map(_.split("\t")).persist()
 
     val vibrationVector = vibrationRDD.map { row =>
       Try(Vectors.dense(row(1).toDouble, row(2).toDouble, row(3).toDouble)).toOption
@@ -44,6 +42,7 @@ object KmeansExample {
     import spark.implicits._
     val foo = sameModel.predict(testRDD)
     foo.toDF.show
+
 
     sc.stop()
   }
